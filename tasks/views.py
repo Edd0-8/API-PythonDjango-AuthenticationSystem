@@ -1,3 +1,11 @@
 from django.shortcuts import render
 
-# Create your views here.
+# Libreria de django con formulario de creacion de usuario
+from django.contrib.auth.forms import UserCreationForm
+
+
+# Views.
+def helloworld(request):
+    return render(request, 'signup.html', {
+        'form': UserCreationForm
+    })
