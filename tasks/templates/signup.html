@@ -1,3 +1,10 @@
-<h1>Singup</h1>
+<h1>Signup</h1>
 
-{{form}}
+<form action="/signup/" method="POST">
+    {% csrf_token %}
+    <!-- as_p trae la informacion dentro de etiquetas <p> -->
+    {{form.as_p}}
+    <button>
+        Signup
+    </button>
+</form>
