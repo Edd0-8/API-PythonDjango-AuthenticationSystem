@@ -11,19 +11,24 @@ from django.http import HttpResponse
 def home(request):
     return render(request, 'home.html')
 
+
 def signup(request):
     if request.method == 'GET':
         return render(request, 'signup.html', {
             'form': UserCreationForm
         })
     else:
-        if request.POST['password1'] == request.POST['password1']:
+        if request.POST['password1'] == request.POST['password2']:
             try:
-                #Register User TODO: MINUTO 29:20 VIDEO
-                user = User.objects.create_user(username=request.POST['username'], 
-                password=request.POST['password1'])
+                # Register User TODO: MINUTO 34:45 VIDEO
+                user = User.objects.create_user(username=request.POST['username'],
+                                                password=request.POST['password1'])
                 user.save()
-                return HttpResponse('User created successfully') 
+                return HttpResponse('User created successfully')
             except:
-                return HttpResponse('Username already exist')
-        return HttpResponse('Password do not match')
+                return render(request, 'signup.html', {
+                    'form': UserCreationForm
+                })
+        return render(request, 'signup.html', {
+            'form': UserCreationForm
+        })
