@@ -1,17 +1,19 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect, get_object_or_404
 # Libreria de django con formulario de creacion de usuario
-from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 # Genera un modelo de usuario automatico a traves de POST
 from django.contrib.auth.models import User
-from django.http import HttpResponse
+from django.contrib.auth import login, logout, authenticate
+from django.db import IntegrityError
+from .forms import TaskForm
+from .models import Task
 # from http.client import HTTPResponse
 
 
 # Views.
 def home(request):
     return render(request, 'home.html')
-
-
+# Funcion para crear usuario con validacion de contraseñas y token
 def signup(request):
     if request.method == 'GET':
         return render(request, 'signup.html', {
@@ -24,11 +26,80 @@ def signup(request):
                 user = User.objects.create_user(username=request.POST['username'],
                                                 password=request.POST['password1'])
                 user.save()
-                return HttpResponse('User created successfully')
-            except:
+                login(request, user)
+                return redirect('tasks')
+            except IntegrityError:
                 return render(request, 'signup.html', {
-                    'form': UserCreationForm
+                    'form': UserCreationForm,
+                    "error": 'User already exists'
                 })
         return render(request, 'signup.html', {
-            'form': UserCreationForm
+            'form': UserCreationForm,
+            "error":'Password do not match'
         })
+
+def tasks(request):
+    tasks = Task.objects.filter(user=request.user)
+    return render(request, 'tasks.html', {
+        'tasks': tasks
+    })
+
+def create_task(request):
+    if request.method == 'GET':
+        return render(request, 'create_task.html',{
+            'form': TaskForm
+        })
+    else:
+        try:
+            form = TaskForm(request.POST)
+            new_task = form.save(commit=False)
+            new_task.user = request.user
+            new_task.save()
+            return redirect('tasks')
+        except ValueError:
+            return render(request, 'create_task.html', {
+                'form': TaskForm,
+                'error': 'Please provide valida data'
+            })
+
+def task_detail(request, task_id):
+    if request.method == 'GET':
+        task = get_object_or_404(Task, pk=task_id, user=request.user)
+        form = TaskForm(instance=task)
+        return render(request, 'task_detail.html', {
+            'task': task,
+            'form': form
+            })
+    else:
+        try:
+            task = get_object_or_404(Task, pk=task_id, user=request.user)
+            form = TaskForm(request.POST, instance=task)
+            form.save()
+            return redirect('tasks')
+        except ValueError:
+            return render(request, 'task_detail.html', {
+            'task': task,
+            'form': form,
+            'error': "Error updating task"
+            })
+
+
+def signout(request):
+    logout(request)
+    return redirect('home')
+
+def signin(request):
+    if request.method == 'GET':
+        return render(request, 'signin.html', {
+            'form': AuthenticationForm
+        })
+    else:
+        user = authenticate(request, username=request.POST['username'], password=request.POST['password'])
+        if user is None:
+            return render(request, 'signin.html', {
+                'form': AuthenticationForm,
+                'error': 'Username or Password is incorrect'
+            })
+        else:
+            login(request, user)
+            return redirect('tasks')
