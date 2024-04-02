@@ -118,6 +118,9 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
+#Routing en caso de querer acceder a alguna pagina que no este disponible sin un LOGIN
+LOGIN_URL = '/signin' 
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
