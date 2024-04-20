@@ -1,4 +1,4 @@
-# API Rest CRUD con Django + Sistema de Autenticacion de Usuario
+# API Rest con Django + Sistema de Autenticacion de Usuario
 ### Proyecto de API REST con CRUD y con la funcion de una app para generar listas de tareas
 # Pasos para usar el proyecto: 
 ## 1. Clona el proyecto en tu maquina:
